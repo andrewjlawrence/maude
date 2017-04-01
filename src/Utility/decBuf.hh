@@ -53,7 +53,11 @@ DecBuf::zero()
 inline void
 DecBuf::insertDigit(int d)
 {
-  Assert(d >= 0 && d <= 9, cerr << "bad digit");
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+	Assert(d >= 0 && d <= 9, "bad digit");
+#else
+	Assert(d >= 0 && d <= 9, cerr << "bad digit");
+#endif
   buf.push_front(d);
 }
 

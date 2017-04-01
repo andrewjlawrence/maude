@@ -178,7 +178,11 @@ looksLikeFloat(const char* s)
 const char*
 doubleToString(double d)
 {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+	if (!isfinite(d))
+#else
   if (!finite(d))
+#endif
     {
       if (isnan(d))
 	return "NaN";

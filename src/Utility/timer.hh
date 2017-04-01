@@ -27,6 +27,19 @@
 #define _timer_hh_
 #include "timeStuff.hh"
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#include <boost/timer/timer.hpp>
+struct timeval {
+	long tv_sec;         /* seconds */
+    long tv_usec;        /* microseconds */
+};
+
+struct itimerval {
+	struct timeval it_interval; /* next value */
+	struct timeval it_value;    /* current value */
+};
+#endif
+
 class Timer
 {
 public:
@@ -55,6 +68,11 @@ private:
   itimerval realStartTime;
   itimerval virtStartTime;
   itimerval profStartTime;
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+  boost::timer::cpu_timer timer;
+#endif
+
   bool running;
   bool valid;
 };

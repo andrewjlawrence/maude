@@ -119,7 +119,7 @@ Vector<T>::end() const
 //
 //	Slow, with extensive runtime checking.
 //
-#include <checkedIterator.hh>
+#include "checkedIterator.hh"
 
 template<class T>
 inline typename Vector<T>::iterator
@@ -135,7 +135,7 @@ Vector<T>::end()
   return iterator(this, pv.getLength());
 }
 
-#include <checkedConstIterator.hh>
+#include "checkedConstIterator.hh"
 
 template<class T>
 inline typename Vector<T>::const_iterator
