@@ -49,3 +49,6 @@ src/FullCompiler/CMakeFiles/TargetDirectories.txt
 *.db
 src/Utility/libutility.vcxproj.user
 src/Variable/CMakeCache.txt
+src/Core/CMakeCache.txt
+*.stamp
+src/Core/CMakeFiles/3.3.2/CompilerIdC/CMakeCCompilerId.c
