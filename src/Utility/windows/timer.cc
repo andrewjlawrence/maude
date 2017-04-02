@@ -12,104 +12,95 @@ bool Timer::osTimersStarted = false;
 
 local_inline Int64
 Timer::calculateMicroseconds(const itimerval& startTime,
-			     const itimerval& stopTime)
+	const itimerval& stopTime)
 {
-  const Int64 M = 1000000;
-  Int64 usec = startTime.it_value.tv_usec - stopTime.it_value.tv_usec +
-    M * (startTime.it_value.tv_sec - stopTime.it_value.tv_sec);
-  if (usec < 0)  // timer wrap around
-    usec += M * CYCLE_LENGTH;
-  return usec;
+	const Int64 M = 1000000;
+	Int64 usec = startTime.it_value.tv_usec - stopTime.it_value.tv_usec +
+		M * (startTime.it_value.tv_sec - stopTime.it_value.tv_sec);
+	if (usec < 0)  // timer wrap around
+		usec += M * CYCLE_LENGTH;
+	return usec;
 }
 
 void
 Timer::startOsTimers()
 {
-  //
-  //	It would be nice to keep track of cycles for correct handling of
-  //	very long time intervals, but this seems hard without introducing
-  //	race conditions; so we just ignore all timer interrupts.
-  //
+	//
+	//	It would be nice to keep track of cycles for correct handling of
+	//	very long time intervals, but this seems hard without introducing
+	//	race conditions; so we just ignore all timer interrupts.
+	//
 
-
-  osTimersStarted = true;
+	osTimersStarted = true;
 }
 
 Timer::Timer(bool startRunning)
 {
-  realAcc = 0;
-  virtAcc = 0;
-  profAcc = 0;
-  running = false;
-  valid = true;
-  if (startRunning)
-    {
-      if (!osTimersStarted)
-	  startOsTimers();
-      running = true;
-      getitimer(ITIMER_REAL, &realStartTime);
-      getitimer(ITIMER_VIRTUAL, &virtStartTime);
-      getitimer(ITIMER_PROF, &profStartTime);
-    }
+	realAcc = 0;
+	virtAcc = 0;
+	profAcc = 0;
+	running = false;
+	valid = true;
+	if (startRunning)
+	{
+		if (!osTimersStarted)
+		{
+			timer.start();
+			startOsTimers();
+		}
+		running = true;
+	}
 }
 
 void
 Timer::start()
 {
-  if (!running && valid)
-    {
-      if (!osTimersStarted)
-	  startOsTimers();
-      running = true;
-      getitimer(ITIMER_REAL, &realStartTime);
-      getitimer(ITIMER_VIRTUAL, &virtStartTime);
-      getitimer(ITIMER_PROF, &profStartTime);
-    }
-  else
-    valid = false;
+	if (!running && valid)
+	{
+		if (!osTimersStarted)
+		{
+			timer.start();
+			startOsTimers();
+		}
+		running = true;
+	}
+	else
+		valid = false;
 }
 
-void 
+void
 Timer::stop()
 {
-  if (running && valid)
-    {
-      itimerval realStopTime;
-      itimerval virtStopTime;
-      itimerval profStopTime;
-      getitimer(ITIMER_PROF, &profStopTime);
-      getitimer(ITIMER_VIRTUAL, &virtStopTime);
-      getitimer(ITIMER_REAL, &realStopTime);
-      running = false;
-      realAcc += calculateMicroseconds(realStartTime, realStopTime);
-      virtAcc += calculateMicroseconds(virtStartTime, virtStopTime);
-      profAcc += calculateMicroseconds(profStartTime, profStopTime);
-    }
-  else
-    valid = false;
+	if (running && valid)
+	{
+		boost::timer::cpu_times const elapsed_times(timer.elapsed());
+		timer.stop();
+		running = false;
+		
+		realAcc += elapsed_times.wall / 1000;
+		virtAcc += elapsed_times.system / 1000;
+		profAcc += elapsed_times.user / 1000;
+	}
+	else
+		valid = false;
 }
 
 bool
 Timer::getTimes(Int64& real, Int64& virt, Int64& prof) const
 {
-  if (valid)
-    {
-      real = realAcc;
-      virt = virtAcc;
-      prof = profAcc;
-      if (running)
+	if (valid)
 	{
-	  itimerval realStopTime;
-	  itimerval virtStopTime;
-	  itimerval profStopTime;
-	  getitimer(ITIMER_PROF, &profStopTime);
-	  getitimer(ITIMER_VIRTUAL, &virtStopTime);
-	  getitimer(ITIMER_REAL, &realStopTime);
-	  real += calculateMicroseconds(realStartTime, realStopTime);
-	  virt += calculateMicroseconds(virtStartTime, virtStopTime);
-	  prof += calculateMicroseconds(profStartTime, profStopTime);
+		real = realAcc;
+		virt = virtAcc;
+		prof = profAcc;
+		if (running)
+		{
+			boost::timer::cpu_times const elapsed_times(timer.elapsed());
+			real += elapsed_times.wall / 1000;
+			virt += elapsed_times.system / 1000;
+			prof += elapsed_times.user / 1000;
+			return true;
+		}
 	}
-      return true;
-    }
-  return false;
+	return false;
 }

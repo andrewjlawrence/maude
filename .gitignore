@@ -28,3 +28,5 @@ src/Utility/libutility.sln
 src/Utility/Project.VC.db
 *.opendb
 *.pdb
+*.lib
+src/Utility/libutility.VC.db
