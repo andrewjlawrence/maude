@@ -20,7 +20,7 @@
 
 */
 
-#include <sys/time.h>
+#include<boost/timer/timer.hpp>
 
 //      utility stuff
 #include "macros.hh"
@@ -297,9 +297,6 @@ fullGC()
   currentSpace.contractTo(t);
 }
 
-static itimerval init = { {1000000, 0}, {1000000, 0} };
-static itimerval result;
-static itimerval result2;
 
 void
 initMem()
@@ -326,19 +323,22 @@ initMem()
   g.memEnd = reinterpret_cast<char*>(ephemeralEnd);
 }
 
+static boost::timer::nanosecond_type result;
+static boost::timer::nanosecond_type result2;
+
 int
 main(/* int argc, char* argv[] */)
 {
   initMem();
   Node* n = inputGraph();
   
-  setitimer(ITIMER_REAL, &init, 0);
-  setitimer(ITIMER_PROF, &init, 0);
-
-  n = eval(n);
-
-  getitimer(ITIMER_PROF, &result);
-  getitimer(ITIMER_REAL, &result2);
+	boost::timer::cpu_timer timer;
+	timer.start();
+	n = eval(n);
+	boost::timer::cpu_times const elapsed_times(timer.elapsed());
+	timer.stop();
+	result = elapsed_times.user;
+	result2 = elapsed_times.wall;
 
   outputGraph(n);
 
@@ -362,12 +362,10 @@ outputGraph(Node* node)
 {
   ofstream ofile(inFileName);
 
-  const Int64 M = 1000000;
+  const Int64 M = 1000;
   ofile << g.count << ' ' <<
-    (M * (init.it_value.tv_sec - result.it_value.tv_sec) +
-     init.it_value.tv_usec - result.it_value.tv_usec) << ' ' <<
-    (M * (init.it_value.tv_sec - result2.it_value.tv_sec) +
-     init.it_value.tv_usec - result2.it_value.tv_usec) << '\n';
+    (result / M)  << ' ' <<
+    (result2 / M) << '\n';
   ofile << node->flags.sortIndex << '\n';
   PointerSet visited;
   depthFirstTraversal(node, visited);

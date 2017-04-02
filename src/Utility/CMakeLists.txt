@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 2.8)
 PROJECT(libutility)
-find_library(BUDDY_LIB /src/Debug/bdd.lib)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_STATIC_RUNTIME ON)
-
 find_package(Boost REQUIRED timer)
 
+find_library(BUDDY_LIB /src/Debug/bdd.lib)
 if (BUDDY_LIB)
   MESSAGE(STATUS "BuDDY library found")
 else()

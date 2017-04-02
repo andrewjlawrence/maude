@@ -167,7 +167,11 @@ Module::insertSort(Sort* sort)
 inline void
 Module::insertSymbol(Symbol* symbol)
 {
-  Assert(status < SIGNATURE_CLOSED, cerr << "bad status");
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+  Assert(status < SIGNATURE_CLOSED, "bad status");
+#else
+	Assert(status < SIGNATURE_CLOSED, cerr << "bad status");
+#endif
   symbol->setModuleInfo(this, symbols.length());
   symbols.append(symbol);
 }
