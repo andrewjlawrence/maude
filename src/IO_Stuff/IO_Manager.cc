@@ -24,9 +24,8 @@
 //      Implementation for class IO_Manager.
 //
 
-#include <unistd.h>
+
 #include <signal.h>
-#include <sys/ioctl.h>
 #include <errno.h>
 
 //      utility stuff
@@ -65,6 +64,7 @@ IO_Manager::setCommandLineEditing(size_t lineLength, size_t historyLength)
 void
 IO_Manager::setAutoWrap()
 {
+#if 0
   //
   //	Set up autowrapping of standard output and standard error.
   //
@@ -83,11 +83,13 @@ IO_Manager::setAutoWrap()
   // cout << "err columns " << columns << '\n';
   wrapErr = new AutoWrapBuffer (cerr.rdbuf(), columns);
   (void) cerr.rdbuf(wrapErr);
+#endif
 }
 
 int
 IO_Manager::getInput(char* buf, int maxSize, FILE* stream)
 {
+#if 0
   if (stream != stdin)
     {
       //
@@ -97,7 +99,7 @@ IO_Manager::getInput(char* buf, int maxSize, FILE* stream)
       //
       return read(fileno(stream), buf, maxSize);
     }
-
+#endif
 #ifdef USE_TECLA
   if (gl != 0)
     {
@@ -135,7 +137,7 @@ IO_Manager::getInput(char* buf, int maxSize, FILE* stream)
       return n;
     }
 #endif
-
+#if 0
   //
   //	Read from stdin without using tecla.
   //
@@ -147,4 +149,7 @@ IO_Manager::getInput(char* buf, int maxSize, FILE* stream)
     }
   contFlag = true;
   return read(fileno(stream), buf, maxSize);
+#endif
+// AL: added this line to get code to compile. Must remove later.
+  return 0;
 }
