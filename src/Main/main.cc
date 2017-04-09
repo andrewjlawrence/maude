@@ -23,7 +23,18 @@
 //
 //	main() function and misc functions.
 //
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#include <io.h>
+
+#define R_OK    4       /* Test for read permission.  */
+#define W_OK    2       /* Test for write permission.  */
+#define X_OK    1       /* execute permission - unsupported in windows*/
+#define F_OK    0       /* Test for existence.  */
+#define STDIN_FILENO 0
+#define STDOUT_FILENO 1
+#else
 #include "sys/param.h"
+#endif
 #ifdef ALPHA
 #include <stropts.h>
 #endif

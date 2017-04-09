@@ -45,8 +45,13 @@ StringDagNode::StringDagNode(StringSymbol* symbol, const Rope& value)
   : NA_DagNode(symbol),
     value(value)
 {
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
   Assert(sizeof(Rope) <= DagNode::nrWords * sizeof(MachineWord),
-	 cerr << "Rope too big for internal storage");
+	     "Rope too big for internal storage");
+#else
+	Assert(sizeof(Rope) <= DagNode::nrWords * sizeof(MachineWord),
+		cerr << "Rope too big for internal storage");
+#endif
   setCallDtor();  // need our dtor called when garbage collected to destruct Rope
 }
 

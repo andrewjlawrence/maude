@@ -270,7 +270,12 @@ FloatOpSymbol::eqRewrite(DagNode* subject, RewritingContext& context)
 	      break;
 	    case CODE('r', 'a'):
 	      {
+		// Has to change to isfinite to build on windows
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+		if (!(isfinite(a1)))
+#else
 		if (!(finite(a1)))
+#endif 
 		  goto fail;
 		mpq_class t;
 		mpq_set_d(t.get_mpq_t(), a1);
@@ -330,7 +335,11 @@ FloatOpSymbol::eqRewrite(DagNode* subject, RewritingContext& context)
 	      }
 	    case CODE('a', 't'):
 	      {
-		if (!finite(a1) && !finite(a2))
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+		 if (!isfinite(a1) && !isfinite(a2))
+#else
+		 if (!finite(a1) && !finite(a2))
+#endif
 		  {
 		    //
 		    //	Double infinity case: make args finite
@@ -445,7 +454,11 @@ FloatOpSymbol::safePow(double a1, double a2, bool& defined)
       defined = false;
       return a2;
     }
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+  if (!isfinite(a1))
+#else
   if (!finite(a1))
+#endif
     {
       if (a2 == 0.0)
 	return 1.0;
@@ -461,7 +474,11 @@ FloatOpSymbol::safePow(double a1, double a2, bool& defined)
 	}
       return odd ? a1 : -a1;
     }
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+  if (!isfinite(a2))
+#else
   if (!finite(a2))
+#endif
     {
       if (a1 > 1.0)
 	return a2 > 0 ? a2 : 0;

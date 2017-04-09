@@ -52,3 +52,8 @@ src/Variable/CMakeCache.txt
 src/Core/CMakeCache.txt
 *.stamp
 src/Core/CMakeFiles/3.3.2/CompilerIdC/CMakeCCompilerId.c
+src/ACU_Persistent/CMakeCache.txt
+src/ACU_Theory/CMakeCache.txt
+src/ACU_Theory/CMakeFiles/TargetDirectories.txt
+src/Core/CMakeFiles/TargetDirectories.txt
+src/ACU_Persistent/CMakeFiles/3.3.2/CompilerIdC/CMakeCCompilerId.c

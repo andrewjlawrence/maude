@@ -1,0 +1,3 @@
+C:/Programming/maude/src/Variable/CMakeFiles/ALL_BUILD.dir
+C:/Programming/maude/src/Variable/CMakeFiles/libvariable.dir
+C:/Programming/maude/src/Variable/CMakeFiles/ZERO_CHECK.dir
