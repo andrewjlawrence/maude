@@ -37,3 +37,17 @@
 # endif
 #endif
 #endif
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+struct timeval {
+	long tv_sec;         /* seconds */
+	long tv_usec;        /* microseconds */
+};
+
+struct itimerval {
+	struct timeval it_interval; /* next value */
+	struct timeval it_value;    /* current value */
+};
+
+int gettimeofday(struct timeval * tp, struct timezone * tzp);
+#endif

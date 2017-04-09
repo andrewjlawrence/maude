@@ -30,6 +30,8 @@
 #include <ostream>
 #elif HAVE_OSTREAM_H
 #include <ostream.h>
+#else
+#include <iostream>
 #endif
 
 using namespace std;

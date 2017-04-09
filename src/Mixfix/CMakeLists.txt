@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-PROJECT(libACU_Theory)
+PROJECT(libmixfix)
 
 find_path(BUDDY_DIR /src/bdd.h)
 if (BUDDY_DIR)
@@ -25,29 +25,99 @@ endif()
 
 include_directories(${BUDDY_INCLUDE} 
 					${GMP_INCLUDE}
-					"../ACU_Persistent"
 					"../Utility"
 					"../Interface"
 					"../Core"
 					"../Variable"
-					"../FullCompiler" )
+					"../FullCompiler"
+					"../Temporal"
+					"../Higher"
+	                "../CUI_Theory"
+					"../S_Theory"
+					"../NA_Theory"
+					"../FreeTheory"
+					"../ObjectSystem"
+					"../Mixfix"
+					"../BuiltIn"
+					"../MSCP10"
+					"../IO_Stuff"
+					"../ACU_Persistent"
+					"../ACU_Theory"
+					"../AU_Persistent"
+					"../AU_Theory"
+					"../Meta"
+					"../3rdParty"
+					"../StrategyLanguage"
+					"../SMT")
 
-file(GLOB ACU_THEORY_HEADER_FILES "./*.hh")
-file(GLOB ACU_THEORY_SOURCE_FILES "./*.cc")
+file(GLOB MIXFIX_HEADER_FILES "./*.hh")
+file(GLOB MIXFIX_SOURCE_FILES "./*.cc")
 
-set_source_files_properties(ACU_LhsCompiler0.cc 
-							ACU_LhsCompiler1.cc 
-							ACU_LhsCompiler2.cc 
-							ACU_LhsCompiler3.cc 
-							ACU_Matcher.cc 
-							ACU_GreedyMatcher.cc 
-							ACU_CollapseMatcher.cc 
-							ACU_TreeMatcher.cc 
-							ACU_DagOperations.cc 
-							ACU_FastMerge.cc 
-							ACU_Normalize.cc 
-							ACU_MergeSort.cc 
+#[[
+FIND_PACKAGE(BISON REQUIRED)
+SET(BisonOutput ${CMAKE_SOURCE_DIR}/surface.cc)
+IF(BISON_FOUND)
+    ADD_CUSTOM_COMMAND(
+      OUTPUT ${BisonOutput}
+      COMMAND ${BISON_EXECUTABLE}
+	          -dv
+              ${CMAKE_SOURCE_DIR}/surface.yy
+			  --output=${BisonOutput}
+      COMMENT "Generating surface.cc"
+    )
+ENDIF()
+
+FIND_PACKAGE(FLEX REQUIRED)
+SET(FlexOutput ${CMAKE_SOURCE_DIR}/lexer.cc)
+IF(FLEX_FOUND)
+    ADD_CUSTOM_COMMAND(
+      OUTPUT ${FlexOutput}
+      COMMAND ${FLEX_EXECUTABLE}
+              -t
+			  -p
+			  -p
+              ${CMAKE_SOURCE_DIR}/lexer.ll
+			  --output=${FlexOutput}
+      COMMENT "Generating scanner.cpp"
+    )
+ENDIF()
+]]
+
+add_definitions(-DPACKAGE_STRING="Maude 2.7.1")
+add_definitions(-DCOMPILER)
+add_definitions(-DNOMINMAX)
+
+set_source_files_properties(renameModule.cc
+	                        parameterization.cc
+							lexerAux.cc
+							process.cc
+							fixUp.cc
+							ops.cc
+							command.cc
+							entry.cc
+							prettyPrint.cc
+							bufferPrint.cc
+							specialSymbolTypes.cc
+							specialTokens.cc
+							doParse.cc
+							makeGrammar.cc
+							auxProperty.cc
+							termPrint.cc
+							dagNodePrint.cc
+							sharedPrint.cc
+							strategyPrint.cc
+							interact.cc
+							trial.cc
+							execute.cc
+							loopMode.cc
+							search.cc
+							srewrite.cc
+							erewrite.cc
+							match.cc
+							unify.cc
+							graphPrint.cc
+							ansiEscapeSequences.cc
 							PROPERTIES HEADER_FILE_ONLY TRUE) 
 							
 							
-add_library(libACU_Theory ${ACU_THEORY_HEADER_FILES} ${ACU_THEORY_SOURCE_FILES})
+add_library(libmixfix ${MIXFIX_HEADER_FILES} ${MIXFIX_SOURCE_FILES} ${BisonOutput} ${FlexOutput} )

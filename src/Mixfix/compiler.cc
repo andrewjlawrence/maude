@@ -3,6 +3,7 @@
     This file is part of the Maude 2 interpreter.
 
     Copyright 1997-2003 SRI International, Menlo Park, CA 94025, USA.
+	Copyright 2017 Andrew Lawrence
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +25,12 @@
 //      Implementation for class Compiler.
 //
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#define WIN32_LEAN_AND_MEAN 
+#include <Windows.h>
+#else
 #include <unistd.h>
+#endif
 #include <sstream>
 
 //      utility stuff
@@ -66,18 +72,28 @@ Compiler::~Compiler()
 const string&
 Compiler::makeBaseName()
 {
+	static string baseName;
 
-  static string baseName;
-  if (baseName.empty())
-    {
-      static ostringstream buffer;
-      const char* tmpDir = getenv("TMPDIR");
-      if (tmpDir == 0)
-	tmpDir = (access("/usr/tmp", W_OK) == 0) ? "/usr/tmp" : "/tmp";
-      buffer << tmpDir << "/maude" << getpid();
-      baseName = buffer.str();  // deep copy
-    }
-  return baseName;
+	if (baseName.empty())
+	{
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+		static ostringstream buffer;
+		TCHAR tmpDir[MAX_PATH];
+		if (GetTempPath(MAX_PATH, tmpDir) == 0);
+			"C:\tmp";
+		buffer << tmpDir << "\maude" << GetCurrentProcessId();
+		baseName = buffer.str();  // deep copy
+#else
+		static ostringstream buffer;
+		const char* tmpDir = getenv("TMPDIR");
+		if (tmpDir == 0)
+			tmpDir = (access("/usr/tmp", W_OK) == 0) ? "/usr/tmp" : "/tmp";
+		buffer << tmpDir << "/maude" << getpid();
+		baseName = buffer.str();  // deep copy
+#endif
+	}
+
+	return baseName;
 }
 
 bool
