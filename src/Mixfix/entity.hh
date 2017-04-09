@@ -51,7 +51,7 @@ public:
   void informUsers();
 
 private:
-  struct UserLt
+  struct UserLt : public std::binary_function<User, User, bool>
   {
     bool operator()(const User* user1, const User* user2)
     {

@@ -24,6 +24,7 @@
 //	Code for handling user interaction.
 //
 #include <signal.h>
+#include <windows.h>
 
 bool UserLevelRewritingContext::interactiveFlag = true;
 bool UserLevelRewritingContext::ctrlC_Flag = false;
@@ -55,8 +56,12 @@ UserLevelRewritingContext::setHandlers(bool handleCtrlC)
 {
   if (interactiveFlag && handleCtrlC)
     {
-      static struct sigaction ctrlC_Handler;
-      ctrlC_Handler.sa_handler = interruptHandler;
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+	  signal(SIGINT, interruptHandler);
+#else
+	  static struct sigaction ctrlC_Handler;
+	  ctrlC_Handler.sa_handler = interruptHandler;
+#endif
 #ifdef SA_INTERRUPT
       //
       //	Avoid old BSD semantics which automatically restarts
@@ -64,7 +69,9 @@ UserLevelRewritingContext::setHandlers(bool handleCtrlC)
       //
       ctrlC_Handler.sa_flags = SA_INTERRUPT;
 #endif
+#if !(defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__))
       sigaction(SIGINT, &ctrlC_Handler, 0);
+#endif
     }
 
 #ifdef NO_ASSERT
@@ -143,9 +150,17 @@ UserLevelRewritingContext::internalErrorHandler(int /* signalNr */)
 `crash.maude' that can be loaded to reproduce the crash (it may load\n\
 other files). Do not bother trying to simplify your example unless the\n\
 runtime to the bug being visible is greater than 10 seconds.\n\n";
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+  DWORD bytesWritten;
+  HANDLE stderrfile = GetStdHandle(STD_ERROR_HANDLE);
+  WriteFile(stderrfile, message1, sizeof(message1) - 1, &bytesWritten, NULL);
+  WriteFile(stderrfile, message2, sizeof(message2) - 1, &bytesWritten, NULL);
+  WriteFile(stderrfile, message3, sizeof(message3) - 1, &bytesWritten, NULL);
+#else
   (void) write(STDERR_FILENO, message1, sizeof(message1) - 1);
   (void) write(STDERR_FILENO, message2, sizeof(message2) - 1);
   (void) write(STDERR_FILENO, message3, sizeof(message3) - 1);
+#endif
   _exit(1);  // don't call atexit() functions with a bad machine state
 }
 

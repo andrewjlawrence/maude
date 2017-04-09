@@ -26,7 +26,6 @@
 //
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-#define WIN32_LEAN_AND_MEAN 
 #include <Windows.h>
 #else
 #include <unistd.h>
@@ -79,9 +78,8 @@ Compiler::makeBaseName()
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 		static ostringstream buffer;
 		TCHAR tmpDir[MAX_PATH];
-		if (GetTempPath(MAX_PATH, tmpDir) == 0);
-			"C:\tmp";
-		buffer << tmpDir << "\maude" << GetCurrentProcessId();
+		GetTempPath(MAX_PATH, tmpDir);
+		buffer << tmpDir << "\\maude" << GetCurrentProcessId();
 		baseName = buffer.str();  // deep copy
 #else
 		static ostringstream buffer;

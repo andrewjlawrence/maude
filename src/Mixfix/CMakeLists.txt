@@ -83,10 +83,12 @@ IF(FLEX_FOUND)
 ENDIF()
 ]]
 
+add_definitions(-DPACKAGE_BUGREPORT="maude-bugs@lists.cs.illinois.edu")
 add_definitions(-DPACKAGE_STRING="Maude 2.7.1")
 add_definitions(-DCOMPILER)
 add_definitions(-DNOMINMAX)
-
+add_definitions(-DWIN32_LEAN_AND_MEAN)
+ 
 set_source_files_properties(renameModule.cc
 	                        parameterization.cc
 							lexerAux.cc
